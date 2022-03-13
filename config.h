@@ -10,9 +10,11 @@
 #define GAME_REFRESH_RATE 10  // 刷新时间ms
 
 /******** 地图配置数据 ********/
-#define MAP_PATH ":/res/img_bg_level_1.jpg"  // 地图资源路径
+#define MAP_PATH ":/res/img_bg_level_1.jpg"  // 地图背景路径
 #define MAP_SCROLL_SPEED 2  // 地图滚动速度
 
+/******** 飞机配置数据 ********/
+#define HERO_PATH ":/res/hero2.png"  // 飞机图片路径
 
 
 #endif // CONFIG_H

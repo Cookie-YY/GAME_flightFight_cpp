@@ -6,7 +6,9 @@ class Map
 {
 public:
     Map();
-    void updatePosition();  // 计算地图滚动坐标
+
+    // 更新地图坐标值
+    void refreshPosition();
 
 public:
     // 地图图片对象

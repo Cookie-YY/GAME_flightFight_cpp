@@ -27,16 +27,21 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainscene.cpp \
-    map.cpp
+    map.cpp \
+    heroplane.cpp
 
 HEADERS += \
         mainscene.h \
     config.h \
-    map.h
+    map.h \
+    heroplane.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res.qrc
 
 

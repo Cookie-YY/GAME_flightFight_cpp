@@ -5,6 +5,7 @@
 #include <QTimer>
 
 #include "map.h"
+#include "heroplane.h"
 
 
 class MainScene : public QWidget
@@ -21,10 +22,13 @@ public:
     void playGame();
 
     // 更新所有游戏中元素的坐标
-    void updatePosition();
+    void refreshPosition();
 
-    // 绘制到屏幕中
+    // 绘制到屏幕中：系统函数
     void paintEvent(QPaintEvent *);
+
+    // 跟踪鼠标移动：系统函数
+    void mouseMoveEvent(QMouseEvent *);
 
 public:
     // 无限循环的timer：刷新游戏的间隔
@@ -32,6 +36,9 @@ public:
 
     // 地图对象
     Map m_map;
+
+    // 飞机对象
+    HeroPlane m_plane;
 
     ~MainScene();
 
