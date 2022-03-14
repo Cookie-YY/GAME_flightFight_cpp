@@ -28,7 +28,7 @@ public:
     int m_speed;
 
     // 子弹是否闲置：闲置为true的子弹不会更新坐标（避免重复的创建和删除对象）
-    bool m_free;
+    bool m_isFlying;
 };
 
 #endif // BULLET_H

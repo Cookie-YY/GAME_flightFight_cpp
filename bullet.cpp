@@ -14,7 +14,7 @@ Bullet::Bullet()
     m_rect.moveTo(m_bullet_X, m_bullet_Y);  // 移动到图片的起始位置
 
     // 子弹状态
-    m_free = true;
+    m_isFlying = false;
 
     // 子弹速度
     m_speed = BULLET_SPEED;
@@ -22,12 +22,12 @@ Bullet::Bullet()
 
 void Bullet::refreshPosition()
 {
-    // 闲置状态的子弹不更新坐标
-    if (m_free) return;
+    // 非flying状态的子弹不更新坐标
+    if (!m_isFlying) return;
 
     // 边缘检测：超过上边缘就闲置
     if (m_bullet_Y - m_speed <= -m_rect.height()) {
-        m_free = true;
+        m_isFlying = false;
         return;
     }
 

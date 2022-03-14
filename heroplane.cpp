@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include "heroplane.h"
 #include "config.h"
 
@@ -24,10 +26,27 @@ HeroPlane::HeroPlane()
     m_rect.setWidth(m_plane.width());
     m_rect.setHeight(m_plane.height());
     m_rect.moveTo(m_plane_X, m_plane_Y);  // 移动到图片的起始位置
+
 }
 
 void HeroPlane::shoot()
 {
+    // 不到间隔不发射
+    m_bullet_interval ++;
+    if (m_bullet_interval < BULLET_INTERVAL) return;
+
+    // 重置间隔
+    m_bullet_interval = 0;
+
+    // 找到子弹
+    Bullet * b = getNotFlyingBullet();
+    if (b == nullptr) {
+        qDebug() << "没有子弹了。。";
+        return;
+    }
+    b->m_isFlying = true;  // 置成飞行状态
+    b->m_bullet_X = m_plane_X + m_rect.width() / 2 -10;  // 子弹的x坐标在飞机的中间
+    b->m_bullet_Y = m_plane_Y - 25;
 
 }
 
@@ -56,4 +75,31 @@ void HeroPlane::updatePosition(int x, int y)
     // 边缘框的移动
     m_rect.moveTo(m_plane_X, m_plane_Y);  // 移动到图片的位置
 
+}
+
+std::vector<Bullet*> HeroPlane::getAllFlyingBullets()
+{
+    std::vector<Bullet*> flyingBullets;
+    // 检查弹匣
+    for (int i = 0; i < BULLET_NUM; ++i)
+    {
+        if (m_bullets[i].m_isFlying)
+        {
+            flyingBullets.push_back(&m_bullets[i]);
+        }
+    }
+    return flyingBullets;
+}
+
+Bullet* HeroPlane::getNotFlyingBullet()
+{
+    // 检查弹匣
+    for (int i = 0; i < BULLET_NUM; ++i)
+    {
+        if (!m_bullets[i].m_isFlying)
+        {
+            return &m_bullets[i];
+        }
+    }
+    return nullptr;
 }

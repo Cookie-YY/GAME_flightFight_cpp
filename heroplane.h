@@ -4,17 +4,28 @@
 #include <QPixmap>
 #include <QRect>
 
+#include <vector>
+
+#include "bullet.h"
+#include "config.h"
+
 
 class HeroPlane
 {
 public:
     HeroPlane();
 
-    // 发射子弹
+    // 发射子弹：初始化子弹位置
     void shoot();
 
     // 更新飞机坐标值
     void updatePosition(int x, int y);
+
+    // 找到所有飞行状态的子弹
+    std::vector<Bullet*> getAllFlyingBullets();
+
+    // 找到一颗不是飞行状态的子弹
+    Bullet* getNotFlyingBullet();
 
 public:
     // 飞机图片对象
@@ -26,6 +37,12 @@ public:
 
     // 飞机矩形边框：边缘的碰撞检测
     QRect m_rect;
+
+    // 弹匣
+    Bullet m_bullets[BULLET_NUM];
+
+    // 无限循环的timer：刷新子弹
+    int m_bullet_interval = 0;
 
 };
 

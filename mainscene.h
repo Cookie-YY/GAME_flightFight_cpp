@@ -22,8 +22,8 @@ public:
     // 启动游戏
     void playGame();
 
-    // 更新所有游戏中元素的坐标
-    void refreshPosition();
+    // 更新所有游戏界面
+    void refresh();
 
     // 绘制到屏幕中：系统函数
     void paintEvent(QPaintEvent *);

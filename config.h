@@ -19,5 +19,7 @@
 /******** 子弹配置数据 ********/
 #define BULLET_PATH ":/res/bullet_1.png"  // 子弹图片路径
 #define BULLET_SPEED 5  // 子弹速度
+#define BULLET_NUM 30   // 弹匣中子弹数量
+#define BULLET_INTERVAL 20  // 发射间隔：每 GAME_REFRESH_RATE 毫秒刷新一次，刷新 BULLET_INTERVAL 次进行发射
 
 #endif // CONFIG_H

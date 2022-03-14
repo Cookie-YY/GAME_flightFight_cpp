@@ -25,12 +25,19 @@
     1. 各自的类中定义图的x和y坐标，以及QPixmap对象，构造函数QPixmap load对应图片
     2. 在MainScene中声明该对象，重写 paintEvent 方法：声明Painter对象，画图
 
-刷新问题：通过QTimer的无限计时器画图
-    m_Timer.setInterval(GAME_REFRESH_RATE);  // 定义间隔 10ms
-    connect(&m_Timer, &QTimer::timeout, [=](){
-        refreshPosition(); // 里面包含了所有对象的 upDatePosition方法
-        update();          // 相当于手动调用了 paintEvent 方法
-    });
+刷新问题：
+    1. 通过QTimer的无限计时器画图  使用QTimer需要保证类继承了QObject  class HeroPlane : public QObject
+        m_Timer.setInterval(GAME_REFRESH_RATE);  // 定义间隔 10ms
+        connect(&m_Timer, &QTimer::timeout, [=](){
+            refreshPosition(); // 里面包含了所有对象的 upDatePosition方法
+            update();          // 相当于手动调用了 paintEvent 方法
+        });
+    2. 使用手动计时器
+        shoot方法绑定到全局刷新函数中
+        shoot方法中 累加 m_recorder++
+        如果 m_recorder 没到达指定interval 不做操作
+            否则 置0 m_recorder，并做操作
+    总结：尝试了飞机类初始化一个QTimer之后，感觉还是利用全局的QTimer进行刷新比较好，其他组件利用手动计时器的方法
 
 边缘检测
     1. 两张地图向下滚动时出了边缘就复位
@@ -51,8 +58,59 @@
         
         m_plane_X = x;
         m_plane_Y = y;
+    
+    3. 子弹的边缘检测
+        // 闲置状态的子弹不更新坐标
+        if (m_free) return;
+
+        // 边缘检测：超过上边缘就闲置
+        if (m_bullet_Y - m_speed <= -m_rect.height()) {
+            m_free = true;
+            return;
+        }
+        m_bullet_Y -= m_speed;
 
 鼠标控制
     void MainScene::mouseMoveEvent(QMouseEvent * event)
     event->x();  event->y()
     * 这个函数会自动无限被调用
+
+数组来放指针
+    问题：
+        目的：飞机存放子弹，想要设置一个方法返回所有flying状态的子弹
+        教程中：存放的就是 Bullet bs[10]; 需要代码写遍历两次（画出flying状态的子弹，更新flying状态的子弹）
+        问题：抽象出的方法，需要对返回的子弹做某些修改
+    讨论：
+        栈对象：指针or对象 + 返回指针or对象
+            1. ❌ 数组对象，返回对象的vector
+                Bullet bs[10];
+                std::vector<Bullet> Plane::findAllBullets(){}
+                * 此时通过 findAllBullets 找到的内容被修改后，原来的bs中的内容不会被修改
+            2. ✅ 数组对象，返回对象指针的vector
+                Bullet bs[10];
+                std::vector<Bullet*> Plane::findAllBullets(){}  // 注意push_back(&bs[i])
+                * 此时通过 findAllBullets 找到的内容被修改后，原来的bs中的内容会被修改，
+            3. ❌ 数组指针对象，返回对象的vector
+                Bullet * bs[10];
+                std::vector<Bullet> Plane::findAllBullets(){}  // 注意push_back(*bs[i])
+            4. ✅ 数组指针对象，返回对象指针的vector
+                Bullet * bs[10];
+                std::vector<Bullet*> Plane::findAllBullets(){}
+        堆对象：指针or对象 + 返回指针or对象
+            5. ❌ 数组对象（堆区），返回对象的vector
+                Bullet * bs = new Bullet[10];
+                std::vector<Bullet> Plane::findAllBullets(){}  // 堆区数组的内容自动被初始化了，bs[0].m_test即可，里面存的不是地址
+            6. ❌ 数组指针对象（堆区），返回对象的vector
+                Bullet ** bs = new Bullet*[10];
+                std::vector<Bullet> Plane::findAllBullets(){}  // 此时注意需要先对指针数组进行初始化：bs[0] = new Bullet;
+            7. ✅ 数组对象（堆区），返回对象指针的vector
+                Bullet * bs = new Bullet[10];
+                std::vector<Bullet*> Plane::findAllBullets(){}
+            8. ✅ 数组指针对象（堆区），返回对象指针的vector
+                Bullet ** bs = new Bullet*[10];
+                std::vector<Bullet*> Plane::findAllBullets(){}  // 此时注意需要先对指针数组进行初始化：bs[0] = new Bullet;
+    总结：
+        1. 返回对象必须是指针才能修改，之前存储的可以是指针可以不是（栈区），可以是堆区数组指针可以是堆区数组
+        2. 堆区数组里面的每个元素是指针时，每个元素并没有被初始化，直接使用会报错，需要bs[0] = new Bullet;
+        3. 堆区数组里面的每个元素是对象时，做了初始化，且每个元素存储的不是指针，可以直接获取属性
+

@@ -35,7 +35,7 @@ void MainScene::initScene()
     // 刷新
     m_Timer.setInterval(GAME_REFRESH_RATE);
     connect(&m_Timer, &QTimer::timeout, [=](){
-        refreshPosition(); // 里面包含了所有对象的 upDatePosition方法
+        refresh(); // 里面包含了所有对象的 upDatePosition方法
         update();         // 相当于手动调用了 paintEvent 方法
     });
 }
@@ -52,14 +52,24 @@ void MainScene::playGame()
 /* playGame: 开始游戏
  *   1. 启动定时器（无限循环，控制刷新屏幕）
 */
-void MainScene::refreshPosition()
+void MainScene::refresh()
 {
     // 1. 更新地图坐标
     m_map.refreshPosition();
 
     // 2. 测试子弹
-    m_tmp_bullet.m_free = false;
-    m_tmp_bullet.refreshPosition();
+//    m_tmp_bullet.m_free = false;
+//    m_tmp_bullet.refreshPosition();
+
+    // 2. 发射子弹：初始化子弹的坐标
+    m_plane.shoot();
+
+    // 3. 更新子弹坐标：
+    for (Bullet* b : m_plane.getAllFlyingBullets())
+    {
+        b->refreshPosition();
+    }
+
 }
 
 /* paintEvent: 绘制背景
@@ -72,15 +82,20 @@ void MainScene::paintEvent(QPaintEvent *)
 
     // 绘制地图
     painter.drawPixmap(0, m_map.m_map1_posY, m_map.m_map1);  // 画map1
-    painter.drawPixmap(0, m_map.m_map2_posY, m_map.m_map2);  // 画map1
+    painter.drawPixmap(0, m_map.m_map2_posY, m_map.m_map2);  // 画map2
 
     // 绘制飞机
     painter.drawPixmap(m_plane.m_plane_X, m_plane.m_plane_Y, m_plane.m_plane);
 
-    // 测试子弹
-    painter.drawPixmap(m_tmp_bullet.m_bullet_X, m_tmp_bullet.m_bullet_Y, m_tmp_bullet.m_bullet);
+//    // 测试子弹
+//    painter.drawPixmap(m_tmp_bullet.m_bullet_X, m_tmp_bullet.m_bullet_Y, m_tmp_bullet.m_bullet);
 
-
+    // 绘制非闲置子弹
+    // 3. 更新子弹坐标：
+    for (Bullet* b : m_plane.getAllFlyingBullets())
+    {
+        painter.drawPixmap(b->m_bullet_X, b->m_bullet_Y, b->m_bullet);
+    }
 }
 
 /* mouseMoveEvent: 监听鼠标移动事件
