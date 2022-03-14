@@ -7,6 +7,8 @@
 #include "map.h"
 #include "heroplane.h"
 #include "bullet.h"
+#include "enemyplane.h"
+#include "enemyboss.h"
 
 
 class MainScene : public QWidget
@@ -31,6 +33,9 @@ public:
     // 跟踪鼠标移动：系统函数
     void mouseMoveEvent(QMouseEvent *);
 
+    // 碰撞检测
+    void collisionDetection();
+
 public:
     // 无限循环的timer：刷新游戏的间隔
     QTimer m_Timer;
@@ -41,8 +46,11 @@ public:
     // 飞机对象
     HeroPlane m_plane;
 
-    // 主场景测试子弹
-    Bullet m_tmp_bullet;
+    // 敌人管理员
+    EnemyBoss m_enemyBoss;
+
+//    // 主场景测试子弹
+//    Bullet m_tmp_bullet;
 
     ~MainScene();
 

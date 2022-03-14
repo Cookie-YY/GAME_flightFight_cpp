@@ -24,6 +24,7 @@
 画图问题：将pixload的过程和画图的过程分开
     1. 各自的类中定义图的x和y坐标，以及QPixmap对象，构造函数QPixmap load对应图片
     2. 在MainScene中声明该对象，重写 paintEvent 方法：声明Painter对象，画图
+    * update()方法相当于手动调用了 paintEvent 方法
 
 刷新问题：
     1. 通过QTimer的无限计时器画图  使用QTimer需要保证类继承了QObject  class HeroPlane : public QObject
@@ -60,18 +61,30 @@
         m_plane_Y = y;
     
     3. 子弹的边缘检测
-        // 闲置状态的子弹不更新坐标
-        if (m_free) return;
-
         // 边缘检测：超过上边缘就闲置
         if (m_bullet_Y - m_speed <= -m_rect.height()) {
-            m_free = true;
+            m_isFlying = false;
             return;
         }
         m_bullet_Y -= m_speed;
+        m_rect.moveTo(m_bullet_X, m_bullet_Y);
+    
+    4. 敌机的边缘：同上（m_bullet_Y + m_speed > GAME_HEIGHT）
 
+    5. 敌机和子弹的碰撞
+        for (EnemyPlane * ep : m_enemyBoss.getAllFlyingEnemys())
+        {
+            for (Bullet * b : m_plane.getAllFlyingBullets())
+            {
+                if (ep->m_rect.intersects(b->m_rect))
+                {
+                    ep->m_isFlying = false;
+                    b->m_isFlying = false;
+                }
+            }
+        }
 鼠标控制
-    void MainScene::mouseMoveEvent(QMouseEvent * event)
+    void MainScene::mouseMoveEvent(QMouseEvent * event)  // 固定写法
     event->x();  event->y()
     * 这个函数会自动无限被调用
 
@@ -114,3 +127,79 @@
         2. 堆区数组里面的每个元素是指针时，每个元素并没有被初始化，直接使用会报错，需要bs[0] = new Bullet;
         3. 堆区数组里面的每个元素是对象时，做了初始化，且每个元素存储的不是指针，可以直接获取属性
 
+循环的问题
+    ** address of stack memory associated with local variable 'ep' returned **
+    for (EnemyPlane ep : m_enemys) 会创建局部变量 ep，如果返回 ep的指针，会认为返回了局部变量的指针，非常危险
+    写法1:
+        for (int i=0; i<ENEMY_NUM; ++i)
+        {
+            if (!m_enemys[i].m_isFlying)
+            {
+                return &m_enemys[i];
+            }
+        }
+        return nullptr;
+    写法2:
+        for (EnemyPlane ep : m_enemys)
+        {
+            if (!ep.m_isFlying)
+            {
+                return &ep;
+            }
+        }
+        return nullptr;
+
+随机数种子
+    生成随机数的写法：不超过某个数的随机整数
+        rand() % (GAME_WIDTH - ep->m_rect.width())
+    添加随机数种子：添加后的随机数可以每次都不一样
+        #include <ctime>
+        srand( (unsigned int) time (nullptr) );  // 随机数种子
+
+QVector
+
+总结
+    整体逻辑：mainScene
+        QTimer的定时刷新绑定了
+            1. refresh()             // 更新位置：地图位置 + (发射子弹+flying状态子弹的位置) + (分发敌机+flying状态敌机的位置)
+            2. update()              // 重新画图：基于更新后的位置: 绘制地图(2) + 绘制自己的飞机 + 绘制flying状态子弹 + 绘制flying状态敌机
+            3. collisionDetection()  // 碰撞检测：将发生碰撞的对象置为闲置：子弹和敌机
+    对象资源管理：在管理对象中创建数组，进行状态管理，而不是反复创建对象
+        子弹与飞机
+            飞机类中有 getAllFlyingBullets / getNotFlyingBullet 方法
+            飞机类中有 shoot方法初始化子弹的位置
+        敌机与boss
+            boss类中有 getAllFlyingEnemys / getNotFlyingEnemy 方法
+            boss类中有 dispatchEnemy 方法初始化飞机位置
+        爆炸与特效管理
+    写法的优化
+        遍历的封装
+            getAllFlyingEnemys / getAllFlyingBullets
+                在重写的 paintEvent 中找到所有的 flying状态的对象进行绘制
+                在 封装的 refresh 中（会被无限循环的方法调用） 找到所有的flying状态的对象更新位置
+                在 封装的 collisionDetection 中（会被无限循环的方法调用） 找到所有的flying状态的对象进行检测
+            getNotFlyingEnemy / getNotFlyingBullet
+                找到没有flying的对象进行初始化
+                bullet：plane里面的shoot方法
+                enemy：enemyBoss里面的dispatchEnemy方法
+        新增enemyBoss管理enemy
+            教程中直接把敌机放到了 主场景中进行管理
+            优化后，将enemyBoss作为主场景中的一个对象
+        新增effectManager管理bomb
+            原理同上
+    物体移动
+        1. 需要初始化：子弹和敌机的初始化是需要被刷新率控制的，所以需要在一个方法中初始化，这个方法还需要检测间隔，并被循环调用
+            地图：在自己的构造函数中赋值
+            飞机：在自己的构造函数中赋值
+            子弹：飞机的 shoot 方法赋值
+            敌机：boss 的 dispatchEnemy 方法赋值
+        2. 需要变化：
+            地图：有特定轨迹：自己提供 refreshPosition 方法，定时调用
+            飞机：受鼠标控制：自己提供 updatePositinon(int x, int y) 被主场景的鼠标事件绑定
+            子弹：有特定轨迹：自己提供 refreshPosition 方法，定时调用
+            敌机：有特定轨迹：自己提供 refreshPosition 方法，定时调用
+        3. 需要有范围
+            地图：两张图，越界就重置
+            飞机：越界就卡到边缘
+            子弹：越界就 m_isFlying为false（供下一次初始化位置并绘图）
+            敌机：越界就 m_isFlying为false（供下一次初始化位置并绘图）

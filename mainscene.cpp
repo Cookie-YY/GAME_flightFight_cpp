@@ -35,8 +35,9 @@ void MainScene::initScene()
     // 刷新
     m_Timer.setInterval(GAME_REFRESH_RATE);
     connect(&m_Timer, &QTimer::timeout, [=](){
-        refresh(); // 里面包含了所有对象的 upDatePosition方法
-        update();         // 相当于手动调用了 paintEvent 方法
+        refresh(); // 里面包含了所有对象的 upDatePosition 方法（更新坐标）
+        update();         // 相当于手动调用了 paintEvent 方法（画图）
+        collisionDetection(); // 碰撞检测
     });
 }
 
@@ -49,8 +50,10 @@ void MainScene::playGame()
     m_Timer.start();
 }
 
-/* playGame: 开始游戏
- *   1. 启动定时器（无限循环，控制刷新屏幕）
+/* refresh: 刷新，所有变量的更新操作（主要是更新游戏中元素的坐标）
+ *   1. 更新地图坐标
+ *   2. 发射子弹：初始化子弹的坐标 + 找到一颗闲置的子弹，设置为非闲置
+ *   3. 找到所有非闲置状态的子弹，更新坐标
 */
 void MainScene::refresh()
 {
@@ -63,11 +66,18 @@ void MainScene::refresh()
 
     // 2. 发射子弹：初始化子弹的坐标
     m_plane.shoot();
-
-    // 3. 更新子弹坐标：
+    // 3. 更新flying状态的子弹坐标：
     for (Bullet* b : m_plane.getAllFlyingBullets())
     {
         b->refreshPosition();
+    }
+
+    // 4. 分发敌机
+    m_enemyBoss.dispatchEnemy();
+    // 5. 更新flying状态的敌机坐标：
+    for (EnemyPlane* e : m_enemyBoss.getAllFlyingEnemys())
+    {
+        e->refreshPosition();
     }
 
 }
@@ -90,11 +100,15 @@ void MainScene::paintEvent(QPaintEvent *)
 //    // 测试子弹
 //    painter.drawPixmap(m_tmp_bullet.m_bullet_X, m_tmp_bullet.m_bullet_Y, m_tmp_bullet.m_bullet);
 
-    // 绘制非闲置子弹
-    // 3. 更新子弹坐标：
+    // 绘制flying状态的子弹
     for (Bullet* b : m_plane.getAllFlyingBullets())
     {
         painter.drawPixmap(b->m_bullet_X, b->m_bullet_Y, b->m_bullet);
+    }
+    // 绘制flying状态的敌机
+    for (EnemyPlane* e : m_enemyBoss.getAllFlyingEnemys())
+    {
+        painter.drawPixmap(e->m_enemy_X, e->m_enemy_Y, e->m_enemy);
     }
 }
 
@@ -108,6 +122,22 @@ void MainScene::mouseMoveEvent(QMouseEvent * event)
     m_plane.updatePosition(x, y); // 根据鼠标的移动，更新飞机的位置
 
 }
+
+void MainScene::collisionDetection()
+{
+    for (EnemyPlane * ep : m_enemyBoss.getAllFlyingEnemys())
+    {
+        for (Bullet * b : m_plane.getAllFlyingBullets())
+        {
+            if (ep->m_rect.intersects(b->m_rect))
+            {
+                ep->m_isFlying = false;
+                b->m_isFlying = false;
+            }
+        }
+    }
+}
+
 
 MainScene::~MainScene()
 {

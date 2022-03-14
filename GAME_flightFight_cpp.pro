@@ -29,14 +29,18 @@ SOURCES += \
         mainscene.cpp \
     map.cpp \
     heroplane.cpp \
-    bullet.cpp
+    bullet.cpp \
+    enemyplane.cpp \
+    enemyboss.cpp
 
 HEADERS += \
         mainscene.h \
     config.h \
     map.h \
     heroplane.h \
-    bullet.h
+    bullet.h \
+    enemyplane.h \
+    enemyboss.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

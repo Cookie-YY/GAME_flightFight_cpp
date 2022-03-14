@@ -22,4 +22,12 @@
 #define BULLET_NUM 30   // 弹匣中子弹数量
 #define BULLET_INTERVAL 20  // 发射间隔：每 GAME_REFRESH_RATE 毫秒刷新一次，刷新 BULLET_INTERVAL 次进行发射
 
+/******** 敌机配置数据 ********/
+#define ENEMY_PATH ":/res/img-plane_5.png"  // 敌机图片路径
+#define ENEMY_SPEED 5  // 敌机速度
+#define ENEMY_NUM 20  // 敌机总数量
+#define ENEMY_INTERVAL 30  // 出场间隔
+
+
+
 #endif // CONFIG_H

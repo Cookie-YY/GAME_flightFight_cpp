@@ -5,13 +5,13 @@ Bullet::Bullet()
 {
     // 初始化子弹图片
     m_bullet.load(BULLET_PATH);
-    // 初始化位置
-    m_bullet_X = (GAME_WIDTH-m_bullet.width()) / 2;  // 初始化x位置是屏幕的一半-自己的一半
-    m_bullet_Y = GAME_HEIGHT-m_bullet.height();      // 初始化y位置是最底下
-    // 初始化边缘框
+//    // 初始化位置
+//    m_bullet_X = (GAME_WIDTH-m_bullet.width()) / 2;  // 初始化x位置是屏幕的一半-自己的一半
+//    m_bullet_Y = GAME_HEIGHT-m_bullet.height();      // 初始化y位置是最底下
+//    // 初始化边缘框
     m_rect.setWidth(m_bullet.width());
     m_rect.setHeight(m_bullet.height());
-    m_rect.moveTo(m_bullet_X, m_bullet_Y);  // 移动到图片的起始位置
+//    m_rect.moveTo(m_bullet_X, m_bullet_Y);  // 移动到图片的起始位置
 
     // 子弹状态
     m_isFlying = false;

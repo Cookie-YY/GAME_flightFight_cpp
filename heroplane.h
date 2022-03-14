@@ -41,7 +41,7 @@ public:
     // 弹匣
     Bullet m_bullets[BULLET_NUM];
 
-    // 无限循环的timer：刷新子弹
+    // 子弹的间隔记录
     int m_bullet_interval = 0;
 
 };
