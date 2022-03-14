@@ -16,5 +16,8 @@
 /******** 飞机配置数据 ********/
 #define HERO_PATH ":/res/hero2.png"  // 飞机图片路径
 
+/******** 子弹配置数据 ********/
+#define BULLET_PATH ":/res/bullet_1.png"  // 子弹图片路径
+#define BULLET_SPEED 5  // 子弹速度
 
 #endif // CONFIG_H

@@ -42,19 +42,18 @@ void HeroPlane::updatePosition(int x, int y)
     //   x的范围: [0, GAME_WIDTH - m_rect.width()]
     //   y的范围: [0, GAME_HEIGHT - m_rect.height()]
     // 边缘检测: x
-    if (x <= 0) {
-        x = 0;
-    }
-    if (x >= GAME_WIDTH - m_rect.width()) {
-        x = GAME_WIDTH - m_rect.width();
-    }
+    if (x <= 0) x = 0;
+    if (x >= GAME_WIDTH - m_rect.width()) x = GAME_WIDTH - m_rect.width();
+
     // 边缘检测: y
-    if (y <= 0) {
-        y = 0;
-    }
-    if (y >= GAME_HEIGHT - m_rect.height()) {
-        y = GAME_HEIGHT - m_rect.height();
-    }
+    if (y <= 0) y = 0;
+    if (y >= GAME_HEIGHT - m_rect.height()) y = GAME_HEIGHT - m_rect.height();
+
+    // 飞机移动
     m_plane_X = x;
     m_plane_Y = y;
+
+    // 边缘框的移动
+    m_rect.moveTo(m_plane_X, m_plane_Y);  // 移动到图片的位置
+
 }

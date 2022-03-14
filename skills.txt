@@ -1,0 +1,58 @@
+资源压缩：添加qrc资源文件后，可通过qrc文件进行压缩（自己尝试并不好使）
+    1. 添加qrc文件
+        编译后的文件是 build-XXX-Debug文件夹的 qrc_res.cpp中
+        1. Add new -> qt -> qt resource file
+        2. 资源栏添加名称: res
+        3. 得到一个res.qrc的文件
+            添加前缀：用于区分不同资源
+            添加文件：把所有文件添加进去
+    2. 添加二进制资源文件: 避免替换资源文件而更改游戏内容的方式（文件也更小）
+        1. 输入以下命令：项目目录下得到 plane.rcc(编译后的文件  90+mb -> 17+mb)
+            ~/Qt5.9.7/5.9.7/clang_64/bin/rcc -binary ./res.qrc -o plane.rcc
+        2. main.cpp中注册资源文件
+            #include <QResource>
+            QResource::registerResource("./plane.rcc");  // 注册二进制资源文件
+        3. 拷贝rcc到build-XXX-Debug文件夹
+            根路径是生成的 build-XXX-Debug文件夹：所以需要把plane.rcc拷贝过去
+        4. 此时可以删除res.qrc文件
+            pro文件中，删除：RESOURCES += res.qrc
+
+全局配置
+    Add new -> C++ -> C++ Head -> config.h
+    通过#define 定义全局配置
+
+画图问题：将pixload的过程和画图的过程分开
+    1. 各自的类中定义图的x和y坐标，以及QPixmap对象，构造函数QPixmap load对应图片
+    2. 在MainScene中声明该对象，重写 paintEvent 方法：声明Painter对象，画图
+
+刷新问题：通过QTimer的无限计时器画图
+    m_Timer.setInterval(GAME_REFRESH_RATE);  // 定义间隔 10ms
+    connect(&m_Timer, &QTimer::timeout, [=](){
+        refreshPosition(); // 里面包含了所有对象的 upDatePosition方法
+        update();          // 相当于手动调用了 paintEvent 方法
+    });
+
+边缘检测
+    1. 两张地图向下滚动时出了边缘就复位
+        m_map1_posY += m_scroll_speed;
+        if (m_map1_posY >= 0) m_map1_posY = -GAME_HEIGHT;  // 上面那张图如果进入到主屏幕就复位
+
+        m_map2_posY += m_scroll_speed;
+        if (m_map2_posY >= GAME_HEIGHT) m_map2_posY = 0;  // 下面那张图如果要出主屏幕就复位
+
+    2. 飞机移动时不能出边缘
+        // 边缘检测: x
+        if (x <= 0) x = 0;
+        if (x >= GAME_WIDTH - m_rect.width()) x = GAME_WIDTH - m_rect.width();
+        
+        // 边缘检测: y
+        if (y <= 0) y = 0;
+        if (y >= GAME_HEIGHT - m_rect.height()) y = GAME_HEIGHT - m_rect.height();
+        
+        m_plane_X = x;
+        m_plane_Y = y;
+
+鼠标控制
+    void MainScene::mouseMoveEvent(QMouseEvent * event)
+    event->x();  event->y()
+    * 这个函数会自动无限被调用

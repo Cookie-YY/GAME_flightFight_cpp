@@ -57,6 +57,9 @@ void MainScene::refreshPosition()
     // 1. 更新地图坐标
     m_map.refreshPosition();
 
+    // 2. 测试子弹
+    m_tmp_bullet.m_free = false;
+    m_tmp_bullet.refreshPosition();
 }
 
 /* paintEvent: 绘制背景
@@ -73,6 +76,10 @@ void MainScene::paintEvent(QPaintEvent *)
 
     // 绘制飞机
     painter.drawPixmap(m_plane.m_plane_X, m_plane.m_plane_Y, m_plane.m_plane);
+
+    // 测试子弹
+    painter.drawPixmap(m_tmp_bullet.m_bullet_X, m_tmp_bullet.m_bullet_Y, m_tmp_bullet.m_bullet);
+
 
 }
 

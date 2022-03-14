@@ -6,6 +6,7 @@
 
 #include "map.h"
 #include "heroplane.h"
+#include "bullet.h"
 
 
 class MainScene : public QWidget
@@ -39,6 +40,9 @@ public:
 
     // 飞机对象
     HeroPlane m_plane;
+
+    // 主场景测试子弹
+    Bullet m_tmp_bullet;
 
     ~MainScene();
 
