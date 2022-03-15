@@ -26,8 +26,16 @@
 #define ENEMY_PATH ":/res/img-plane_5.png"  // 敌机图片路径
 #define ENEMY_SPEED 5  // 敌机速度
 #define ENEMY_NUM 20  // 敌机总数量
-#define ENEMY_INTERVAL 30  // 出场间隔
+#define ENEMY_INTERVAL 30  // 出场间隔：每 GAME_REFRESH_RATE 毫秒刷新一次，刷新 ENEMY_INTERVAL 次进行安排敌人
 
+/******** 爆炸配置数据 ********/
+#define BOMB_PATH ":/res/bomb-%1.png"  // 敌机图片路径
+#define BOMB_NUM 20  // 爆炸效果的总数，即最多几个爆炸（建议和敌机数量保持一致）
+#define BOMB_MAX 7   // 爆炸图片的资源个数 bomb-1.png ～ bomb-7.png
+#define BOMB_INTERVAL 5  // 爆炸切图间隔：每 GAME_REFRESH_RATE 毫秒刷新一次，刷新 BOMB_INTERVAL 次切换一张图
 
+/******** 音效配置数据 ********/
+#define SOUND_BACKGROUND_PATH ":/res/bg.wav"  // 背景音乐路径
+#define SOUND_BOMB_PATH ":/res/bomb.wav"  // 爆炸音乐路径
 
 #endif // CONFIG_H

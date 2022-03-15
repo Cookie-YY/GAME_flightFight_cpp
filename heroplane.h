@@ -9,7 +9,6 @@
 #include "bullet.h"
 #include "config.h"
 
-
 class HeroPlane
 {
 public:
@@ -41,7 +40,7 @@ public:
     // 弹匣
     Bullet m_bullets[BULLET_NUM];
 
-    // 子弹的间隔记录
+    // 子弹的间隔记录：发射子弹时需要满足间隔（m_bullet_interval++后与目标值比较）
     int m_bullet_interval = 0;
 
 };

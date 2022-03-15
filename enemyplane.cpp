@@ -1,6 +1,19 @@
 #include "enemyplane.h"
 #include "config.h"
 
+/*
+ *  敌机的封装，目前只有移动：更新位置
+*/
+
+
+/* EnemyPlane: 构造函数
+ *   1. 加载图片
+ *   2. flying状态置为false（由EnemyBoss进行初始化）
+ *   3. 初始化边缘检测框
+ *      * 之后使用这个框的长和宽指代敌机的长和宽
+ *      * 之后使用这个框进行碰撞检测
+ *   * 位置信息由EnemyBoss进行初始化
+*/
 EnemyPlane::EnemyPlane()
 {
     // 初始化敌机图片
@@ -20,6 +33,11 @@ EnemyPlane::EnemyPlane()
     m_speed = ENEMY_SPEED;
 }
 
+/* refreshPosition: 刷新位置坐标
+ *   1. 状态检测，非flying不移动
+ *   2. 边缘检测，超出边缘，修改状态
+ *   3. 更新敌机的y坐标，更新矩形框
+*/
 void EnemyPlane::refreshPosition()
 {
     // 非flying状态的敌机不更新坐标

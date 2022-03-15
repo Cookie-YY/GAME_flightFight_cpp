@@ -7,7 +7,7 @@
 
 
 /*
- *  主场景：刷新地图，控制飞机
+ *  主场景：刷新地图，控制飞机，边缘检测
 */
 
 /* MainScene: 构造函数
@@ -48,6 +48,8 @@ void MainScene::playGame()
 {
     // 启动定时器
     m_Timer.start();
+    // 播放背景音乐
+    m_effectManager.playBackGroundSound();
 }
 
 /* refresh: 刷新，所有变量的更新操作（主要是更新游戏中元素的坐标）
@@ -80,6 +82,12 @@ void MainScene::refresh()
         e->refreshPosition();
     }
 
+    // 6. 更新爆炸效果的切图
+    for (Bomb* b : m_effectManager.getAllBombingBombs())
+    {
+        b->refreshImgIndex();
+    }
+
 }
 
 /* paintEvent: 绘制背景
@@ -110,6 +118,11 @@ void MainScene::paintEvent(QPaintEvent *)
     {
         painter.drawPixmap(e->m_enemy_X, e->m_enemy_Y, e->m_enemy);
     }
+    // 绘制bombing状态的爆炸
+    for (Bomb* b : m_effectManager.getAllBombingBombs())
+    {
+        painter.drawPixmap(b->m_bomb_X, b->m_bomb_Y, b->m_imgs[b->m_imgIndex-1]);
+    }
 }
 
 /* mouseMoveEvent: 监听鼠标移动事件
@@ -123,6 +136,10 @@ void MainScene::mouseMoveEvent(QMouseEvent * event)
 
 }
 
+/* collisionDetection: 碰撞检测
+ *   1. 遍历所有flying状态的敌机，遍历所有flying状态的子弹
+ *   2. 如果边缘框有交集，就把敌机和子弹的flying状态置为false
+*/
 void MainScene::collisionDetection()
 {
     for (EnemyPlane * ep : m_enemyBoss.getAllFlyingEnemys())
@@ -133,6 +150,8 @@ void MainScene::collisionDetection()
             {
                 ep->m_isFlying = false;
                 b->m_isFlying = false;
+                m_effectManager.dispatchBomb(ep->m_enemy_X, ep->m_enemy_Y);  // 分发爆炸效果
+                m_effectManager.playBombSound();  // 播放爆炸音乐
             }
         }
     }

@@ -157,6 +157,15 @@
         srand( (unsigned int) time (nullptr) );  // 随机数种子
 
 QVector
+    #include <QVector>
+    QVector<QPixmap> m_imgs;
+    m_imgs.push_back();  // 和STL的vector用法一样
+QString
+    debug信息
+        #include <QDebug>
+        qDebug() << "";
+    格式化
+        QString("%1").args(1)
 
 总结
     整体逻辑：mainScene
@@ -172,6 +181,9 @@ QVector
             boss类中有 getAllFlyingEnemys / getNotFlyingEnemy 方法
             boss类中有 dispatchEnemy 方法初始化飞机位置
         爆炸与特效管理
+            EffectManager类中有 getAllBombingBombs / getNotBombingBomb 方法
+            EffectManager类中有 dispatchBomb(int x, int y) 方法初始化爆炸位置
+                * 这里的dispatch没有了 刷新的限制
     写法的优化
         遍历的封装
             getAllFlyingEnemys / getAllFlyingBullets
@@ -185,21 +197,49 @@ QVector
         新增enemyBoss管理enemy
             教程中直接把敌机放到了 主场景中进行管理
             优化后，将enemyBoss作为主场景中的一个对象
-        新增effectManager管理bomb
+        新增 EffectManager 管理bomb
             原理同上
+        背景音乐循环，同时交给 EffectManager 管理
+    
     物体移动
         1. 需要初始化：子弹和敌机的初始化是需要被刷新率控制的，所以需要在一个方法中初始化，这个方法还需要检测间隔，并被循环调用
             地图：在自己的构造函数中赋值
             飞机：在自己的构造函数中赋值
-            子弹：飞机的 shoot 方法赋值
-            敌机：boss 的 dispatchEnemy 方法赋值
+            子弹：飞机的 shoot 方法赋值（有刷新率的限制+找到非flying状态的子弹+修改状态/初始化坐标）
+            敌机：boss 的 dispatchEnemy 方法赋值（有刷新率的限制+找到非flying状态的敌机+修改状态/初始化坐标）
+            爆炸：EffectManager 的 dispatchBomb 方法赋值（没有刷新率的限制+找到非Bombing状态的爆炸+修改状态/初始化坐标）   坐标由外界传递
         2. 需要变化：
             地图：有特定轨迹：自己提供 refreshPosition 方法，定时调用
             飞机：受鼠标控制：自己提供 updatePositinon(int x, int y) 被主场景的鼠标事件绑定
             子弹：有特定轨迹：自己提供 refreshPosition 方法，定时调用
             敌机：有特定轨迹：自己提供 refreshPosition 方法，定时调用
+            爆炸：有特定轨迹：自己提供 refreshImgIndex 方法，定时调用 （受刷新率限制）
         3. 需要有范围
             地图：两张图，越界就重置
             飞机：越界就卡到边缘
             子弹：越界就 m_isFlying为false（供下一次初始化位置并绘图）
             敌机：越界就 m_isFlying为false（供下一次初始化位置并绘图）
+            爆炸：图片索引越界就 m_isBombing为false，并初始化 m_imgIndex = 1;
+        总结：
+            1. 初始化 + 变化 + 范围，就是for循环的三要素
+            2. 受刷新率的变化体现是不同的
+                1. refresh();        // 里面包含了所有对象的 upDatePosition 方法（更新坐标）
+                    地图：m_map.refreshPosition();
+                    飞机：没有（坐标更新是监听的鼠标移动事件）
+                    子弹和敌机：初始化坐标 + 更新flying状态的坐标
+                    爆炸：更新坐标
+                2. update();         // 相当于手动调用了 paintEvent 方法（画图）
+                    地图：绘制2张
+                    飞机：绘制
+                    子弹敌机和爆炸：绘制flying状态 / bombing状态 的
+                3. collisionDetection(); // 碰撞检测
+                    爆炸：初始化坐标
+TODO
+    架构上，似乎吧bomb的效果放到敌机自己维护会更好
+        1. 每个敌机可定制爆炸效果
+        2. 跟随着敌机一起被enemyBoss管理
+        3. 减少一个爆炸效果的最大值，更方便理解
+    功能上
+        - 血条
+        - 经验值与升级
+        - 分数与关卡

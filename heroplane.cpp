@@ -4,7 +4,7 @@
 #include "config.h"
 
 /*
- *  主角飞机的封装，移动和攻击
+ *  主角飞机的封装，移动和攻击 + 子弹管理（找到一发可用的子弹 / 找到所有飞行的子弹）
 */
 
 
@@ -32,7 +32,7 @@ HeroPlane::HeroPlane()
 /* shoot: 发射：子弹出场
  *   1. 间隔++后进行判断
  *   2. 符合要求后重置间隔
- *   3. 找到合适的子弹后，置成飞行状态并初始化其x和y坐标
+ *   3. 找到可用的子弹后，置成飞行状态并初始化其x和y坐标
 */
 void HeroPlane::shoot()
 {
@@ -82,6 +82,10 @@ void HeroPlane::updatePosition(int x, int y)
 
 }
 
+/* getAllFlyingBullets: 子弹管理：找到所有飞行的子弹
+ *   1. 检查所有子弹
+ *   2. 将flying状态的子弹的指针放到vecotor中
+*/
 std::vector<Bullet*> HeroPlane::getAllFlyingBullets()
 {
     std::vector<Bullet*> flyingBullets;
@@ -96,6 +100,10 @@ std::vector<Bullet*> HeroPlane::getAllFlyingBullets()
     return flyingBullets;
 }
 
+/* getNotFlyingBullet: 子弹管理：找到一发可用的子弹
+ *   1. 检查所有子弹
+ *   2. 找到一发不是flying状态的子弹，返回地址
+*/
 Bullet* HeroPlane::getNotFlyingBullet()
 {
     // 检查弹匣

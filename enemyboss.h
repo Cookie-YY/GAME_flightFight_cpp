@@ -22,7 +22,7 @@ public:
     // 敌机数组
     EnemyPlane m_enemys[ENEMY_NUM];
 
-    // 敌机的间隔记录
+    // 敌机的间隔记录：发射敌机时需要满足间隔（m_enemy_interval++后与目标值比较）
     int m_enemy_interval = 0;
 
 };

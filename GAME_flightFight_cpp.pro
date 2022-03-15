@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,7 +31,9 @@ SOURCES += \
     heroplane.cpp \
     bullet.cpp \
     enemyplane.cpp \
-    enemyboss.cpp
+    enemyboss.cpp \
+    bomb.cpp \
+    effectmanager.cpp
 
 HEADERS += \
         mainscene.h \
@@ -40,7 +42,9 @@ HEADERS += \
     heroplane.h \
     bullet.h \
     enemyplane.h \
-    enemyboss.h
+    enemyboss.h \
+    bomb.h \
+    effectmanager.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

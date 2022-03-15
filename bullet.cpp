@@ -1,6 +1,19 @@
 #include "bullet.h"
 #include "config.h"
 
+/*
+ *  子弹的封装，目前只有移动：更新位置
+*/
+
+
+/* Bullet: 构造函数
+ *   1. 加载图片
+ *   2. flying状态置为false（由HeroPlane进行初始化）
+ *   3. 初始化边缘检测框
+ *      * 之后使用这个框的长和宽指代子弹的长和宽
+ *      * 之后使用这个框进行碰撞检测
+ *   * 位置信息由HeroPlane进行初始化
+*/
 Bullet::Bullet()
 {
     // 初始化子弹图片
@@ -20,6 +33,11 @@ Bullet::Bullet()
     m_speed = BULLET_SPEED;
 }
 
+/* refreshPosition: 刷新位置坐标
+ *   1. 状态检测，非flying不移动
+ *   2. 边缘检测，超出边缘，修改状态
+ *   3. 更新子弹的y坐标，更新矩形框
+*/
 void Bullet::refreshPosition()
 {
     // 非flying状态的子弹不更新坐标

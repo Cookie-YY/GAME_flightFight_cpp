@@ -9,7 +9,7 @@
 #include "bullet.h"
 #include "enemyplane.h"
 #include "enemyboss.h"
-
+#include "effectmanager.h"
 
 class MainScene : public QWidget
 {
@@ -48,6 +48,9 @@ public:
 
     // 敌人管理员
     EnemyBoss m_enemyBoss;
+
+    // 特效管理员
+    EffectManager m_effectManager;
 
 //    // 主场景测试子弹
 //    Bullet m_tmp_bullet;
